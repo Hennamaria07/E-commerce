@@ -19,9 +19,11 @@ app.use(cookieParser());
 const userRouter = require('./routes/user.routes.js');
 const categoryRouter = require("./routes/category.routes.js");
 const productRouter = require("./routes/product.routes.js")
+const orderRouter = require("./routes/order.router.js")
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/category', categoryRouter);
 app.use('/api/v1/product', productRouter)
+app.use('/api/v1/order', orderRouter)
 
 module.exports = app;
