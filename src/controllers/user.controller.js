@@ -108,7 +108,8 @@ const login = async (req, res) => {
             success: true,
             message: "Loggedin successfully",
             user: loggedUser,
-            accessToken
+            accessToken,
+            isAuthenticated: true,
         });
     } catch (error) {
         res.status(500).json({
@@ -129,7 +130,7 @@ const GetAllUsers = async (req, res) => {
                 message: "Something went wrong while feching the details"
             });
         } 
-        console.log(users)
+        // console.log(users)
             return res.status(200).json({
                 success: true,
                 message: "All users fectched successfully!",
@@ -172,7 +173,7 @@ const GetUser = async (req, res) => {
 // DELETE A USER
 const DeleteUser = async (req, res) => {
     try {
-        const id = req.user._id;
+        const id = req.params.id;
         const user = await User.findByIdAndDelete(id);
         if(!user) {
             return res.status(404).json({
@@ -306,6 +307,21 @@ const UpdatePassword = async (req, res) => {
     }
 }
 
+const logOut = async (req, res) => {
+    try {
+        res.status(200)
+            .clearCookie("accessToken", options)
+            .json({
+                success: true,
+                message: "User logged out successfully!"
+            });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
 
 module.exports = {
     Signup,
@@ -314,5 +330,6 @@ module.exports = {
     GetUser,
     DeleteUser,
     UpdateUser,
-    UpdatePassword
+    UpdatePassword,
+    logOut
 }

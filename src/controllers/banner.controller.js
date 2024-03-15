@@ -1,31 +1,28 @@
-const Category = require("../models/category.models.js");
+const Banner = require("../models/Banner.model.js");
 const uploadCloudinary = require("../utils/cloudinary.js");
 const mongoose = require('mongoose');
 
-// Create catagory
-const CreateCategory = async(req, res) => {
+// Create banner
+const CreateBanner = async(req, res) => {
     try {
-        const {name} = req.body;
-        const iconLocalPath = req.file?.path;
-        if(!name) {
+        const bannerLocalPath = req.file?.path;
+        if(!bannerLocalPath) {
             return res.status(400).json({
                 success: false,
-                message: "Catagory name is required"
+                message: "banner image is required"
             })
         } else {
-            const nameLower = name.toLowerCase();
-            const icon = await uploadCloudinary(iconLocalPath);
-            const catagory = await Category.create({
-                name: nameLower,
-                iconImage: {
-                    publicId: icon.public_id || "",
-                    url: icon.url
+            const banner = await uploadCloudinary(bannerLocalPath);
+            const bannerData = await Banner.create({
+                image: {
+                    publicId: banner.public_id || "",
+                    url: banner.url
                 }
             });
             return res.status(200).json({
                 success: true,
-                catagory,
-                message: `${nameLower} is added successfully`
+                banner: bannerData,
+                message: `banner is added successfully`
             })
         }
     } catch (error) {
@@ -37,19 +34,19 @@ const CreateCategory = async(req, res) => {
 }
 
 // Delete catagory
-const DeleteCategory = async(req, res) => {
+const DeleteBanner = async(req, res) => {
     try {
         const id = req.params.id;
-        const deletedCategory = await Category.findByIdAndDelete(id);
-        if (!deletedCategory) {
+        const deletedBanner = await Banner.findByIdAndDelete(id);
+        if (!deletedBanner) {
             return res.status(404).json({
                 success: false,
-                message: "Category not found"
+                message: "Banner not found"
             });
         }
         return res.status(200).json({
             success: true,
-            message: "Category deleted successfully"
+            message: "Banner deleted successfully"
         });
     } catch (error) {
         res.status(500).json({
@@ -59,11 +56,11 @@ const DeleteCategory = async(req, res) => {
     }
 }
 
-// Get ALL CATAGORIES
-const AllCategories = async (req, res) => {
+// Get ALL BANNERS
+const AllBanners = async (req, res) => {
     try {
-        const categories = await Category.find();
-        if(!categories) {
+        const banners = await Banner.find();
+        if(!banners) {
             return res.status(401).json({
                 success: false,
                 message: "Something went wrong while feching the details"
@@ -71,7 +68,7 @@ const AllCategories = async (req, res) => {
         } else {
             return res.status(200).json({
                 success: true,
-                category: categories,
+                banner: banners,
             })
         }
     } catch (error) {
@@ -81,19 +78,19 @@ const AllCategories = async (req, res) => {
         });
     }
 };
-// SINGLE CATEGORY
-const GetCategory = async (req, res) => {
+// SINGLE BANNER
+const GetBanner = async (req, res) => {
     try {
-        const categoryId = req.params.id;
+        const bannerId = req.params.id;
         // Validate if the categoryId is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        if (!mongoose.Types.ObjectId.isValid(bannerId)) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid category ID"
+                message: "Invalid banner ID"
             });
         }
-        const category = await Category.findById(categoryId);
-        if(!category) {
+        const banner = await Banner.findById(bannerId);
+        if(!banner) {
             return res.status(401).json({
                 success: false,
                 message: "Something went wrong while feching the details"
@@ -101,7 +98,7 @@ const GetCategory = async (req, res) => {
         }
             return res.status(200).json({
                 success: true,
-                category
+                banner
             })
     } catch (error) {
         res.status(500).json({
@@ -112,26 +109,23 @@ const GetCategory = async (req, res) => {
 };
 
 // UPDATE CATEGORY
-const UpdateCategory = async(req, res) => {
+const UpdateBanner = async(req, res) => {
     try {
         const id = req.params.id;
-        const {name} = req.body;
-        if(!name) {
+        const bannerLocalPath = req?.file?.path;
+        if(!bannerLocalPath) {
             return res.status(400).json({
                 success: false,
-                message: "Category name is required"
+                message: "Banner is required"
             })
         }
-        const category = await Category.findById(id);
-        const iconLocalPath = req?.file?.path;
-        const icon = await uploadCloudinary(iconLocalPath)
-        const updatedCategory = await Category.findByIdAndUpdate(id,
+        const banner = await uploadCloudinary(bannerLocalPath)
+        const updatedBanner = await Banner.findByIdAndUpdate(id,
             {
                 $set: {
-                    name,
                     iconImage: {
-                        publicId: icon?.public_id || category?.iconImage?.publicId,
-                        url: icon?.url || category?.iconImage?.url
+                        publicId: icon?.public_id,
+                        url: icon?.url
                     }
                 }
             },
@@ -139,7 +133,7 @@ const UpdateCategory = async(req, res) => {
                 new: true
             }
             );
-            if(!updatedCategory) {
+            if(!updatedBanner) {
                 return res.status(500).json({
                     success: false,
                     message: "unable to update"
@@ -147,8 +141,8 @@ const UpdateCategory = async(req, res) => {
             }
             return res.status(200).json({
                 success: true,
-                category: updatedCategory,
-                message: "Category updated successfully"
+                banner: updatedBanner,
+                message: "Banner updated successfully"
             })
     } catch (error) {
         res.status(500).json({
@@ -160,9 +154,9 @@ const UpdateCategory = async(req, res) => {
 
 
 module.exports = {
-    CreateCategory,
-    DeleteCategory,
-    AllCategories,
-    GetCategory,
-    UpdateCategory
+    CreateBanner,
+    DeleteBanner,
+    AllBanners,
+    GetBanner,
+    UpdateBanner
 }

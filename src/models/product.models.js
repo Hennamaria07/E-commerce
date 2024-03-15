@@ -16,21 +16,26 @@ const productSchema = new mongoose.Schema(
           type: String,
           trim: true,
           required: true
-      },
-      url: {
+        },
+        url: {
           type: String,
           trim: true,
           required: true
-      }
+        }
       }
     ],
     brand: {
       type: String,
       default: ""
     },
-    price: {
+    actualPrice: {
       type: Number,
       required: true,
+      min: 0
+    },
+    discountPrice: {
+      type: Number,
+      default: 0,
       min: 0
     },
     stock: {
@@ -42,6 +47,10 @@ const productSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
+    },
+    size: {
+      type: Object,
+      required: true
     },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
@@ -67,11 +76,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0
     }
-  }, 
+  },
   {
     timestamps: true
-}
-  );
+  }
+);
 
 const Product = mongoose.model("Product", productSchema);
 
