@@ -9,9 +9,9 @@ router.route('/login').post(login);
 
 // secure route
 router.route('/all-users').get(verifyToken, isAdmin, GetAllUsers);
-router.route('/details').get(verifyToken, GetUser);
+router.route('/:id').get(verifyToken, GetUser);
 router.route('/delete/:id').delete(verifyToken, DeleteUser);
-router.route('/update').put(verifyToken, UpdateUser);
+router.route('/update/:id').put(verifyToken, UpdateUser);
 router.route('/update-password').put(verifyToken, UpdatePassword);
 router.route('/logout').post(verifyToken, logOut);
 module.exports = router;

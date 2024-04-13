@@ -1,6 +1,5 @@
 const jwt = require ('jsonwebtoken');
 const User = require('../models/user.models.js');
-
 const verifyToken = async (req, res, next) => {
 try {
         const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");

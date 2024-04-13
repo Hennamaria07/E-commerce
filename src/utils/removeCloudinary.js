@@ -1,10 +1,10 @@
-import {v2 as cloudinary} from "cloudinary";
+const {v2: cloudinary} = require('cloudinary');
   
 cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
-  api_secret: process.env.CLOUDINARY_SECRET_KEY
-});
+    cloud_name: 'freestyle07', 
+    api_key: "286239639171635", 
+    api_secret: "4P3a70oZ_TsyPL84AObN9QjC77Y"
+  })
 
 const removeFromCloudinary = async (publicId) => {
     try {
@@ -16,4 +16,4 @@ const removeFromCloudinary = async (publicId) => {
     }
 }
 
-export default removeFromCloudinary;
+module.exports = removeFromCloudinary;

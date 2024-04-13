@@ -1,6 +1,7 @@
 const User = require("../models/user.models.js");
 const uploadCloudinary = require("../utils/cloudinary.js");
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+const removeFromCloudinary = require("../utils/removeCloudinary.js");
 
 const options = {
     httpOnly: true,
@@ -15,6 +16,8 @@ const generateToken = async (userId) => {
 const Signup = async (req, res) => {
     try {
         const {fullName, email, password, confirmPassword, phone} = req.body;
+        console.log(req.body);
+        console.log("file----->",req.file);
         const avatarLocalPath = req.file?.path;
         // console.log(avatarLocalPath);
         if([fullName, email, password, confirmPassword, phone, avatarLocalPath].some((field) => !field || field?.trim() === "")) {
@@ -149,7 +152,8 @@ const GetAllUsers = async (req, res) => {
 
 const GetUser = async (req, res) => {
     try {
-        const id = req.user._id;
+        const id = req.params.id;
+        console.log("id------>", id);
         const user = await User.findById(id).select('-password');
         if(!user) {
             return res.status(404).json({
@@ -181,6 +185,7 @@ const DeleteUser = async (req, res) => {
                 message: "user not found"
             });
         } else {
+            await removeFromCloudinary(user.image.publicId);
             return res.status(200).json({
                 success: true,
                 message: "Account deleted successfully"
@@ -209,7 +214,7 @@ const UpdateUser = async (req, res) => {
         }
 
         // Get the user ID from the authenticated user object
-        const userId = req.user._id;
+        const userId = req.params.id;
 
         // Find and update the user
         const user = await User.findByIdAndUpdate(
