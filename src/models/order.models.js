@@ -15,7 +15,8 @@ const mongoose = require('mongoose');
 //   { timestamps: true }
 // );
 const orderSchema = new mongoose.Schema(
-  {shippingInfo: {
+  {
+    shippingInfo: {
     address: {
       type: String,
       required: true,

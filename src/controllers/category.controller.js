@@ -124,6 +124,12 @@ const UpdateCategory = async(req, res) => {
         }
         const category = await Category.findById(id);
         const iconLocalPath = req?.file?.path;
+        if(!iconLocalPath) {
+            return res.status(400).json({
+                success: false,
+                message: "Category icon is required"
+            })
+        }
         const icon = await uploadCloudinary(iconLocalPath)
         const updatedCategory = await Category.findByIdAndUpdate(id,
             {

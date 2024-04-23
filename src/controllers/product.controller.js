@@ -95,6 +95,11 @@ const GetAllProducts = async (req, res) => {
         }
         const result = await Product.aggregate([
             {
+              $match: {
+                _id: new mongoose.Types.ObjectId(id)
+              }
+            },
+            {
               $lookup: {
                 from: "categories",
                 localField: "category",
@@ -102,18 +107,18 @@ const GetAllProducts = async (req, res) => {
                 as: "category"
               }
             },
-            // {
-            //   $lookup: {
-            //     from: "users",
-            //     localField: "seller",
-            //     foreignField: "_id",
-            //     as: "seller"
-            //   }
-            // },
+            {
+              $lookup: {
+                from: "users",
+                localField: "seller",
+                foreignField: "_id",
+                as: "seller"
+              }
+            },
             {
               "$addFields": {
-                "category": { "$arrayElemAt": ["$category", 0]},
-                // "seller": { "$arrayElemAt": ["$seller", 0] }
+                "category": { "$arrayElemAt": ["$category", 0] },
+                "seller": { "$arrayElemAt": ["$seller", 0] }
               }
             },
             {
@@ -126,12 +131,12 @@ const GetAllProducts = async (req, res) => {
                 actualPrice: 1,
                 discountPrice: 1,
                 size: 1,
-                seller: 1,
                 stock: 1,
-                images: 1
+                images: 1,
+                seller: 1
               }
             }
-          ])
+          ]);
           console.log(result);
         return res.status(200).json({
             success: true,
@@ -144,63 +149,6 @@ const GetAllProducts = async (req, res) => {
         });
     }
  }
-// UPDATE PRODUCT
-// const UpdateProduct = async (req, res) => {
-//     try {
-//         const id = req.params.id;
-//         // console.log(id);
-//         console.log(req.body);
-//         const {name, description, actualPrice, discountPrice, brand, stock, category, size} = req.body;
-//         if (typeof size === 'string') {
-//            var parsedSize = JSON.parse(size);
-//         }
-//         // for (let i = 0; i < req.files.length; i++) {
-//         //     const img = req.files[i];
-//         //     if (img) {
-//         //         const serverImg = await uploadCloudinary(img.path);
-//         //         images.push({
-//         //             publicId: serverImg.public_id,
-//         //             url: serverImg.url
-//         //         });
-//         //     }
-//         // }
-//         // console.log(size);
-//         if([name, description, actualPrice, discountPrice, stock, category, parsedSize].some((field) => !field || field === "")) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: 'All fields are required'
-//             });
-//         };
-//         const updatedProduct = await Product.findByIdAndUpdate(id,
-//             {
-//                 $set: {
-//                     name,
-//                     description,
-//                     actualPrice,
-//                     discountPrice,
-//                     stock,
-//                     category,
-//                     brand,
-//                     size: parsedSize,
-//                 }
-//             },
-//             {
-//                 new: true
-//             }
-//             );
-//             return res.status(200).json({
-//                 success: true,
-//                 message: "product updated successfully",
-//                 updatedProduct
-//             })
-//         // console.log(req.user.images);
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: error.message
-//         });
-//     }
-// }
 
 const UpdateImg = async (req, res) => {
     try {
@@ -364,6 +312,86 @@ const productFilteredByPrice = async (req, res) => {
         });
     }
 }
+
+const BestDeals = async (req, res) => {
+    try {
+        const product = await Product.aggregate(
+            [
+                {
+                    $addFields: {
+                      commonDistance: { $abs: { $subtract: ["$discountPrice", "$actualPrice"] } }
+                    }
+                  },
+                  {
+                    $sort: { commonDistance: -1 }
+                  },
+                  {
+                    $limit: 4
+                  }
+              ]
+        )
+        if(!product) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: "no products found"
+                }
+            )
+        }
+        return res.status(200).json(
+            {
+                success: true,
+                product
+            }
+        )
+    } catch (error) {
+        return res.status(500).json(
+            {
+                success: false,
+                message: error.message
+            }
+        )
+    }
+}
+
+const LatestProduct = async (req, res) => {
+    try {
+        const product = await Product.aggregate(
+            [
+                {
+                    $sort: {
+                      createdAt: -1
+                    }
+                  },
+                  {
+                    $limit: 4
+                  }
+              ]
+        )
+        if(!product) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: "no products found"
+                }
+            )
+        }
+        return res.status(200).json(
+            {
+                success: true,
+                product
+            }
+        )
+    } catch (error) {
+        return res.status(500).json(
+            {
+                success: false,
+                message: error.message
+            }
+        )
+    }
+}
+
 module.exports = {
     CreateProduct,
     GetAllProducts,
@@ -372,5 +400,7 @@ module.exports = {
     DeleteProduct,
     productFilteredByCategory,
     productFilteredByPrice,
-    UpdateImg
+    UpdateImg,
+    BestDeals,
+    LatestProduct
 }
