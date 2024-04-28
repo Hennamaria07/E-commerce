@@ -41,7 +41,6 @@ const orderSchema = new mongoose.Schema(
     },
     phoneNo: {
       type: Number,
-      required: true,
     },
   },
     customer: {
@@ -49,19 +48,17 @@ const orderSchema = new mongoose.Schema(
       ref: 'User',
     },
     orderItems: [
-      { price: {
-        type: Number,
-        required: true,
-      },
-        productId: {
+      { 
+        product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
         required: true 
       },
       quantity: {
         type: Number,
-        required: true,
-      },}
+        default: 1,
+      }
+    }
     ],
     paymentInfo: {
       id: {
@@ -78,32 +75,17 @@ const orderSchema = new mongoose.Schema(
       enum: ['PENDING', 'SHIPPING', 'CANCELLED', 'DELIVERED'],
       default: 'PENDING'
     },
-    date: {
-      type: Date,
-      default: Date.now()
-    },
-    paidAt: {
-      type: Date,
-      required: true,
-    },
-    itemsPrice: {
+    totalPrice: {
       type: Number,
       required: true,
       default: 0,
     },
     taxPrice: {
       type: Number,
-      required: true,
       default: 0,
     },
     shippingPrice: {
       type: Number,
-      required: true,
-      default: 0,
-    },
-    totalPrice: {
-      type: Number,
-      required: true,
       default: 0,
     },
     deliveredAt: Date
